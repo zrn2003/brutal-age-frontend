@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ShoppingCart, X, Trash2, UserCheck, MessageSquare, Phone, MessageCircle, Send, Check } from 'lucide-react';
 import type { CartItem, BuyerUser } from '../types';
 
+import { formatImageUrl } from '../utils/imageUtils';
+
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -122,7 +124,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   className="p-3 bg-slate-50 border border-slate-200 flex items-center justify-between gap-3"
                 >
                   <img
-                    src={item.listing.images[0] || 'https://placehold.co/100x100'}
+                    src={formatImageUrl(item.listing.images?.[0])}
                     alt=""
                     className="w-14 h-14 object-cover border border-slate-300 flex-shrink-0"
                   />

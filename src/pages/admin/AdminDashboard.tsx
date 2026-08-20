@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import type { Listing } from '../../types';
 import { getApiBaseUrl } from '../../config/api';
+import { formatImageUrl } from '../../utils/imageUtils';
 
 interface RequirementItem {
   _id: string;
@@ -584,7 +585,7 @@ export const AdminDashboard: React.FC = () => {
                         <tr key={item._id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-5 py-4 flex items-center gap-3.5 max-w-sm">
                             <img
-                              src={item.images?.[0] || 'https://placehold.co/100x100'}
+                              src={formatImageUrl(item.images?.[0])}
                               alt=""
                               className="w-12 h-12 object-cover border border-slate-300 flex-shrink-0"
                             />
@@ -659,7 +660,7 @@ export const AdminDashboard: React.FC = () => {
                     <div key={item._id} className="p-4 space-y-3 bg-white">
                       <div className="flex items-start gap-3">
                         <img
-                          src={item.images?.[0] || 'https://placehold.co/100x100'}
+                          src={formatImageUrl(item.images?.[0])}
                           alt=""
                           className="w-16 h-16 object-cover border border-slate-300 flex-shrink-0"
                         />

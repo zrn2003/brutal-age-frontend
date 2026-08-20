@@ -3,6 +3,8 @@ import { useToast } from '../context/ToastContext';
 import { ZoomIn, ChevronLeft, ChevronRight, X, Maximize2 } from 'lucide-react';
 import type { Listing } from '../types';
 
+import { formatImageUrl } from '../utils/imageUtils';
+
 interface AccountDetailModalProps {
   listing: Listing | null;
   onClose: () => void;
@@ -26,7 +28,8 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
 
   if (!listing) return null;
 
-  const images = listing.images && listing.images.length > 0 ? listing.images : ['https://placehold.co/800x500/ffffff/0f172a?text=Brutal+Age'];
+  const rawImages = listing.images && listing.images.length > 0 ? listing.images : ['https://placehold.co/800x500/ffffff/0f172a?text=Brutal+Age'];
+  const images = rawImages.map((img) => formatImageUrl(img));
 
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',

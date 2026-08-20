@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { Listing, BuyerUser } from '../types';
 import { AccountDetailModal } from './AccountDetailModal';
+import { formatImageUrl } from '../utils/imageUtils';
 
 interface ListingsSectionProps {
   listings: Listing[];
@@ -282,7 +283,8 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
       {filteredListings.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredListings.map((listing) => {
-            const coverImage = listing.images && listing.images.length > 0 ? listing.images[0] : 'https://placehold.co/600x400/ffffff/0f172a?text=Brutal+Age';
+            const rawCover = listing.images && listing.images.length > 0 ? listing.images[0] : 'https://placehold.co/600x400/ffffff/0f172a?text=Brutal+Age';
+            const coverImage = formatImageUrl(rawCover);
 
             return (
               <div
