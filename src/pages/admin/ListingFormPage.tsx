@@ -16,7 +16,7 @@ export const ListingFormPage: React.FC = () => {
   const [price, setPrice] = useState<number | ''>('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<ListingStatus>('Available');
-  const [contactLink, setContactLink] = useState('https://wa.me/919876543210');
+  const [contactLink, setContactLink] = useState('https://wa.me/917517491313');
   const [images, setImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -369,7 +369,7 @@ export const ListingFormPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="e.g. https://wa.me/919876543210"
+                placeholder="e.g. https://wa.me/917517491313"
                 value={contactLink}
                 onChange={(e) => setContactLink(e.target.value)}
                 className="w-full bg-slate-50 text-slate-900 text-xs sm:text-sm px-3.5 py-3 border border-slate-300 focus:outline-none focus:border-slate-900"
