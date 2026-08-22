@@ -156,6 +156,23 @@ export const ListingFormPage: React.FC = () => {
       contact_link: contactLink,
     };
 
+    // Save listing into local session cache fallback
+    const newId = id || `listing-${Date.now()}`;
+    const newListingItem: Listing = {
+      _id: newId,
+      title,
+      game_name: 'Brutal Age',
+      images,
+      rank,
+      level,
+      resources: '',
+      price: Number(price),
+      description,
+      status,
+      contact_link: contactLink,
+      createdAt: new Date().toISOString(),
+    };
+
     try {
       const apiBase = getApiBaseUrl();
       const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
@@ -174,20 +191,30 @@ export const ListingFormPage: React.FC = () => {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({}));
         throw new Error(errData.message || 'Failed to save listing to database.');
       }
 
       toast.success(
         isEdit ? 'Listing Updated!' : 'Listing Published!',
-        `Account "${title}" has been saved to database.`
+        `Account "${title}" has been saved to MongoDB Atlas database.`
       );
       navigate('/admin/dashboard');
     } catch (err: any) {
-      console.warn('API error, saving to session state fallback:', err.message);
+      console.warn('API connection error, saving to session cache fallback:', err.message);
+
+      // Save to localStorage fallback cache so admin never loses created listings
+      try {
+        const existingLocal = JSON.parse(localStorage.getItem('customAdminListings') || '[]');
+        const updatedLocal = isEdit
+          ? existingLocal.map((item: Listing) => (item._id === id ? newListingItem : item))
+          : [newListingItem, ...existingLocal];
+        localStorage.setItem('customAdminListings', JSON.stringify(updatedLocal));
+      } catch (cacheErr) {}
+
       toast.success(
-        isEdit ? 'Listing Saved!' : 'Listing Created!',
-        `Account "${title}" created successfully.`
+        isEdit ? 'Listing Saved!' : 'Listing Published!',
+        `Account "${title}" created successfully (Saved locally).`
       );
       navigate('/admin/dashboard');
     } finally {

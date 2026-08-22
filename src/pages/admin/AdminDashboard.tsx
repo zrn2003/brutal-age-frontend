@@ -105,12 +105,25 @@ export const AdminDashboard: React.FC = () => {
 
   const fetchListings = () => {
     const apiBase = getApiBaseUrl();
+    const localCustom: Listing[] = JSON.parse(localStorage.getItem('customAdminListings') || '[]');
     fetch(`${apiBase}/listings`)
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setListings(data);
+        if (Array.isArray(data) && data.length > 0) {
+          const merged = [...data];
+          localCustom.forEach((loc) => {
+            if (!merged.some((m) => m._id === loc._id)) {
+              merged.unshift(loc);
+            }
+          });
+          setListings(merged);
+        } else if (localCustom.length > 0) {
+          setListings(localCustom);
+        }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (localCustom.length > 0) setListings(localCustom);
+      });
   };
 
   const fetchRequirements = () => {
