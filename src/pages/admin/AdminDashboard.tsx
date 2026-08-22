@@ -604,6 +604,9 @@ export const AdminDashboard: React.FC = () => {
 
                           <td className="px-5 py-4">
                             <select
+                              id={`status-select-${item._id}`}
+                              name="status"
+                              aria-label={`Change status for ${item.title}`}
                               value={item.status}
                               onChange={(e) => handleStatusChange(item._id, e.target.value as Listing['status'])}
                               className="bg-white border border-slate-300 px-2.5 py-1.5 text-xs font-bold shadow-xs"
@@ -683,6 +686,9 @@ export const AdminDashboard: React.FC = () => {
 
                       <div className="flex items-center justify-between gap-2 pt-1">
                         <select
+                          id={`mobile-status-select-${item._id}`}
+                          name="mobileStatus"
+                          aria-label={`Change status for ${item.title}`}
                           value={item.status}
                           onChange={(e) => handleStatusChange(item._id, e.target.value as Listing['status'])}
                           className="bg-slate-50 border border-slate-300 px-2.5 py-1 text-xs font-bold"
@@ -763,6 +769,9 @@ export const AdminDashboard: React.FC = () => {
 
                         <div className="flex items-center gap-2">
                           <select
+                            id={`req-status-select-${req._id}`}
+                            name="requirementStatus"
+                            aria-label={`Change requirement status for ${req.buyerName}`}
                             value={req.status}
                             onChange={(e) => handleRequirementStatusChange(req._id, e.target.value as RequirementItem['status'])}
                             className="bg-white border border-slate-300 px-3 py-1 text-xs font-bold shadow-xs"

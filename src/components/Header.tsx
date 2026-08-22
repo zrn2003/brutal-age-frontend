@@ -49,7 +49,10 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
+                id="desktop-search-input"
+                name="search"
                 type="text"
+                aria-label="Search Brutal Age accounts"
                 placeholder="Search Brutal Age accounts by Leadership level, Power..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}

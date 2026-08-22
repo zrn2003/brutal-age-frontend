@@ -119,10 +119,12 @@ export const CustomRequirementModal: React.FC<CustomRequirementModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label htmlFor="req-buyer-name" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                   Your Full Name *
                 </label>
                 <input
+                  id="req-buyer-name"
+                  name="buyerName"
                   type="text"
                   required
                   placeholder="e.g. Alex Mercer"
@@ -133,10 +135,12 @@ export const CustomRequirementModal: React.FC<CustomRequirementModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label htmlFor="req-buyer-email" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                   Email Address *
                 </label>
                 <input
+                  id="req-buyer-email"
+                  name="buyerEmail"
                   type="email"
                   required
                   placeholder="alex@domain.com"
@@ -149,10 +153,12 @@ export const CustomRequirementModal: React.FC<CustomRequirementModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label htmlFor="req-leadership-level" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                   Desired Leadership Level *
                 </label>
                 <select
+                  id="req-leadership-level"
+                  name="desiredLeadership"
                   value={desiredLeadership}
                   onChange={(e) => setDesiredLeadership(e.target.value)}
                   className="w-full bg-slate-50 text-slate-900 text-xs px-3.5 py-2.5 border border-slate-300 focus:outline-none focus:border-indigo-600 font-bold"
@@ -166,10 +172,12 @@ export const CustomRequirementModal: React.FC<CustomRequirementModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label htmlFor="req-budget-usd" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                   Budget ($ USD) *
                 </label>
                 <input
+                  id="req-budget-usd"
+                  name="budgetUSD"
                   type="number"
                   required
                   placeholder="e.g. 1500"
@@ -181,10 +189,12 @@ export const CustomRequirementModal: React.FC<CustomRequirementModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+              <label htmlFor="req-relocation-tickets" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                 Required Relocation Tickets / Troops Features
               </label>
               <input
+                id="req-relocation-tickets"
+                name="relocationTickets"
                 type="text"
                 placeholder="e.g. 20+ Relocation Tickets, High Defensive Research"
                 value={relocationTickets}
@@ -195,10 +205,12 @@ export const CustomRequirementModal: React.FC<CustomRequirementModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label htmlFor="req-contact-channel" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                   Preferred Contact Channel
                 </label>
                 <select
+                  id="req-contact-channel"
+                  name="preferredContactChannel"
                   value={preferredContactChannel}
                   onChange={(e) => setPreferredContactChannel(e.target.value as any)}
                   className="w-full bg-slate-50 text-slate-900 text-xs px-3.5 py-2.5 border border-slate-300 focus:outline-none focus:border-indigo-600 font-bold"
@@ -211,10 +223,12 @@ export const CustomRequirementModal: React.FC<CustomRequirementModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                <label htmlFor="req-buyer-phone" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                   WhatsApp / Phone / Social ID
                 </label>
                 <input
+                  id="req-buyer-phone"
+                  name="buyerPhone"
                   type="text"
                   placeholder="e.g. +1 234 567 8900 or Social ID"
                   value={buyerPhone}
@@ -228,10 +242,12 @@ export const CustomRequirementModal: React.FC<CustomRequirementModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+              <label htmlFor="req-additional-notes" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                 Additional Account Specifications / Notes
               </label>
               <textarea
+                id="req-additional-notes"
+                name="additionalNotes"
                 rows={3}
                 placeholder="Describe any specific dragon skills, legendary partner sets, or hero research requirements..."
                 value={additionalNotes}

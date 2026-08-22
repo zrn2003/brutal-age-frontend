@@ -174,9 +174,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             
             {/* Communication Mode Selector */}
             <div>
-              <label className="block text-[11px] font-extrabold uppercase text-slate-600 mb-1.5 font-heading">
+              <span className="block text-[11px] font-extrabold uppercase text-slate-600 mb-1.5 font-heading">
                 Choose Checkout Communication Channel *
-              </label>
+              </span>
               <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-100 border border-slate-300">
                 
                 {/* WhatsApp */}

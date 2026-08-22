@@ -231,10 +231,12 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
         {/* 3. Search & Sort Controls */}
         <div className="flex flex-col justify-between space-y-2">
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
+            <label htmlFor="listings-search-input" className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
               Search Keyword
             </label>
             <input
+              id="listings-search-input"
+              name="searchKeyword"
               type="text"
               placeholder="Search title, level, relocation tickets..."
               value={searchQuery}
@@ -244,10 +246,12 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
+            <label htmlFor="listings-sort-select" className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
               Sort Order
             </label>
             <select
+              id="listings-sort-select"
+              name="sortBy"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
               className="w-full bg-slate-50 text-slate-900 text-xs px-3 py-2 border border-slate-300 focus:outline-none focus:border-slate-900 font-bold"
