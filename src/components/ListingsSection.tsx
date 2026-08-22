@@ -3,6 +3,7 @@ import { Share2 } from 'lucide-react';
 import type { Listing, BuyerUser } from '../types';
 import { AccountDetailModal } from './AccountDetailModal';
 import { formatImageUrl } from '../utils/imageUtils';
+import { getShortProductUrl } from '../utils/permalinkUtils';
 import { useToast } from '../context/ToastContext';
 
 interface ListingsSectionProps {
@@ -353,7 +354,7 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
                     {/* Share Product Permalink Button */}
                     <button
                       onClick={() => {
-                        const shareUrl = `${window.location.origin}/p/${listing._id}`;
+                        const shareUrl = getShortProductUrl(listing._id);
                         navigator.clipboard.writeText(shareUrl);
                         toast.info('Direct Product Link Copied', `Copied link: ${shareUrl}`);
                       }}

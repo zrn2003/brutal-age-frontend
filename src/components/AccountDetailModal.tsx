@@ -3,6 +3,7 @@ import { useToast } from '../context/ToastContext';
 import { ZoomIn, ChevronLeft, ChevronRight, X, Maximize2, Share2, Check } from 'lucide-react';
 import type { Listing } from '../types';
 import { formatImageUrl } from '../utils/imageUtils';
+import { getShortProductCode, getShortProductUrl } from '../utils/permalinkUtils';
 
 interface AccountDetailModalProps {
   listing: Listing | null;
@@ -36,7 +37,8 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
     maximumFractionDigits: 0,
   }).format(listing.price);
 
-  const productPermalink = `${window.location.origin}/p/${listing._id}`;
+  const shortCode = getShortProductCode(listing._id);
+  const productPermalink = getShortProductUrl(listing._id);
 
   const copyShareLink = () => {
     navigator.clipboard.writeText(productPermalink);
@@ -172,7 +174,7 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
               <div className="mb-6 p-2 bg-indigo-50/70 border border-indigo-200 text-[11px] text-indigo-900 font-medium flex items-center justify-between gap-2">
                 <div className="truncate">
                   <span className="font-bold uppercase text-[9px] text-indigo-700 block">Direct Share Permalink:</span>
-                  <code className="font-mono text-[11px] text-indigo-900 truncate block">/p/{listing._id}</code>
+                  <code className="font-mono text-[11px] text-indigo-900 truncate block">/p/{shortCode}</code>
                 </div>
                 <button
                   onClick={copyShareLink}
