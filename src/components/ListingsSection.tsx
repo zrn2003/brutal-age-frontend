@@ -52,19 +52,22 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
   ];
 
   // Helper to extract numeric Leadership Level from string e.g. "Leadership LEVEL 350" -> 350
-  const extractLeadershipLevel = (levelStr: string): number => {
+  const extractLeadershipLevel = (levelStr?: string): number => {
+    if (!levelStr) return 0;
     const match = levelStr.match(/\d+/);
-    return match ? parseInt(match[0], 10) : 35;
+    return match ? parseInt(match[0], 10) : 0;
   };
 
   const filteredListings = useMemo(() => {
     let result = listings.filter((item) => {
       if (statusFilter !== 'All' && item.status !== statusFilter) return false;
-      if (item.price > maxPrice) return false;
+      if (maxPrice < 25000 && item.price > maxPrice) return false;
 
-      // Leadership Level Filter (Min to Max Range)
+      // Leadership Level Filter (Min to Max Range) - Only filter if item has numeric level
       const itemLevelNum = extractLeadershipLevel(item.level);
-      if (itemLevelNum < minLeadershipLevel || itemLevelNum > maxLeadershipLevel) return false;
+      if (itemLevelNum > 0 && (itemLevelNum < minLeadershipLevel || itemLevelNum > maxLeadershipLevel)) {
+        return false;
+      }
 
       if (searchQuery) {
         const query = searchQuery.toLowerCase();

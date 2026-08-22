@@ -2,7 +2,7 @@ import { getApiBaseUrl } from '../config/api';
 
 /**
  * Ensures image URLs display reliably across Vercel frontend and Render backend.
- * Handles Firebase URLs, Base64 Data URLs, and relative /uploads/ paths.
+ * Handles Firebase URLs, Base64 Data URLs, local public /assets/, and backend /uploads/ paths.
  */
 export const formatImageUrl = (url: string | undefined): string => {
   if (!url || typeof url !== 'string' || url.trim() === '') {
@@ -20,7 +20,12 @@ export const formatImageUrl = (url: string | undefined): string => {
     return trimmed;
   }
 
-  // 2. Relative upload path -> Prepend backend API domain
+  // 2. Frontend public static assets (e.g. /assets/01.png, /assets/02.png) -> Return as is
+  if (trimmed.startsWith('/assets/')) {
+    return trimmed;
+  }
+
+  // 3. Backend uploads -> Prepend backend API domain
   const apiBase = getApiBaseUrl();
   const backendOrigin = apiBase.replace(/\/api\/?$/, ''); // e.g. https://brutal-age-backend.onrender.com
 
