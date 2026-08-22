@@ -71,10 +71,10 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
 
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        const titleMatch = item.title.toLowerCase().includes(query);
-        const rankMatch = item.rank.toLowerCase().includes(query);
-        const levelMatch = item.level.toLowerCase().includes(query);
-        const descMatch = item.description.toLowerCase().includes(query);
+        const titleMatch = (item.title || '').toLowerCase().includes(query);
+        const rankMatch = (item.rank || '').toLowerCase().includes(query);
+        const levelMatch = (item.level || '').toLowerCase().includes(query);
+        const descMatch = (item.description || '').toLowerCase().includes(query);
         if (!titleMatch && !rankMatch && !levelMatch && !descMatch) return false;
       }
 
@@ -82,9 +82,9 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
     });
 
     if (sortBy === 'priceAsc') {
-      result.sort((a, b) => a.price - b.price);
+      result.sort((a, b) => (a.price || 0) - (b.price || 0));
     } else if (sortBy === 'priceDesc') {
-      result.sort((a, b) => b.price - a.price);
+      result.sort((a, b) => (b.price || 0) - (a.price || 0));
     } else if (sortBy === 'newest') {
       result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     }
@@ -94,18 +94,19 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
 
   const handleAddToCartClick = (listing: Listing) => {
     if (!buyerUser) {
-      onRequireLogin(`Please sign in or create a buyer account to add "${listing.title}" to your shopping cart.`);
+      onRequireLogin(`Please sign in or create a buyer account to add "${listing.title || 'Account'}" to your shopping cart.`);
       return;
     }
     onAddToCart(listing);
   };
 
-  const formatPriceUSD = (price: number) => {
+  const formatPriceUSD = (price?: number) => {
+    if (price === undefined || price === null || isNaN(Number(price))) return '$0';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       maximumFractionDigits: 0,
-    }).format(price);
+    }).format(Number(price));
   };
 
   return (

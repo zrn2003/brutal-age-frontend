@@ -67,14 +67,13 @@ export const HomePage: React.FC = () => {
         throw new Error('Backend offline');
       })
       .then((data: Listing[]) => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setListings(data);
 
           // Cross-validate cart items against live available listings
           if (initialCartItems.length > 0) {
             const validCartItems = initialCartItems.filter((item) => {
               const liveListing = data.find((l) => l._id === item.listing._id);
-              // Keep only if listing exists in DB and is marked Available
               return Boolean(liveListing && liveListing.status === 'Available');
             });
 
@@ -90,10 +89,13 @@ export const HomePage: React.FC = () => {
               );
             }
           }
+        } else {
+          setListings(mockListings);
         }
       })
       .catch((err) => {
-        console.log('API error fetching listings:', err.message);
+        console.log('API error fetching listings, retaining listings state:', err.message);
+        setListings(mockListings);
       });
   }, []);
 
