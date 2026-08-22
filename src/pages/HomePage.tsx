@@ -97,14 +97,25 @@ export const HomePage: React.FC = () => {
       });
   }, []);
 
-  // Sync /p/:id product permalink URL param with listings array
+  // Sync /p/:id product permalink URL param with listings array or direct API fetch
   useEffect(() => {
-    if (productIdParam && listings.length > 0) {
+    if (productIdParam) {
       const matched = listings.find(
         (item) => item._id === productIdParam || item._id.endsWith(productIdParam)
       );
       if (matched) {
         setSharedListing(matched);
+      } else {
+        // Direct API fetch fallback for deep permalink
+        const apiBase = getApiBaseUrl();
+        fetch(`${apiBase}/listings/${productIdParam}`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data: Listing | null) => {
+            if (data && data._id) {
+              setSharedListing(data);
+            }
+          })
+          .catch(() => {});
       }
     } else {
       setSharedListing(null);
