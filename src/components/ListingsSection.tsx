@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
+import { Share2 } from 'lucide-react';
 import type { Listing, BuyerUser } from '../types';
 import { AccountDetailModal } from './AccountDetailModal';
 import { formatImageUrl } from '../utils/imageUtils';
+import { useToast } from '../context/ToastContext';
 
 interface ListingsSectionProps {
   listings: Listing[];
@@ -20,6 +22,7 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
   onAddToCart,
   onRequireLogin,
 }) => {
+  const toast = useToast();
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [statusFilter, setStatusFilter] = useState<'All' | 'Available' | 'Sold'>('All');
   
@@ -347,6 +350,18 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
                   </div>
 
                   <div className="flex items-center gap-1.5">
+                    {/* Share Product Permalink Button */}
+                    <button
+                      onClick={() => {
+                        const shareUrl = `${window.location.origin}/p/${listing._id}`;
+                        navigator.clipboard.writeText(shareUrl);
+                        toast.info('Direct Product Link Copied', `Copied link: ${shareUrl}`);
+                      }}
+                      className="p-1.5 border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 shadow-xs transition-colors"
+                      title="Copy direct product link (/p/:id)"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-slate-600 hover:text-indigo-600" />
+                    </button>
                     {/* Free Unrestricted Details Viewer */}
                     <button
                       onClick={() => setSelectedListing(listing)}

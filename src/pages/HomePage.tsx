@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { AutoSlider } from '../components/AutoSlider';
 import { TrustStats } from '../components/TrustStats';
@@ -6,6 +7,7 @@ import { ListingsSection } from '../components/ListingsSection';
 import { CartDrawer } from '../components/CartDrawer';
 import { BuyerAuthModal } from '../components/BuyerAuthModal';
 import { CustomRequirementModal } from '../components/CustomRequirementModal';
+import { AccountDetailModal } from '../components/AccountDetailModal';
 import { Footer } from '../components/Footer';
 import { mockListings } from '../data/mockListings';
 import { useToast } from '../context/ToastContext';
@@ -14,9 +16,15 @@ import type { Listing, BuyerUser, CartItem } from '../types';
 
 export const HomePage: React.FC = () => {
   const toast = useToast();
+  const { id: productIdParam } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
+
   const [listings, setListings] = useState<Listing[]>(mockListings);
   const [searchQuery, setSearchQuery] = useState<string>('');
   
+  // Direct Shared Permalink Modal Listing (/p/:id)
+  const [sharedListing, setSharedListing] = useState<Listing | null>(null);
+
   // Buyer Auth State
   const [buyerUser, setBuyerUser] = useState<BuyerUser | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
@@ -73,7 +81,9 @@ export const HomePage: React.FC = () => {
             if (validCartItems.length !== initialCartItems.length) {
               const removedCount = initialCartItems.length - validCartItems.length;
               setCartItems(validCartItems);
-              localStorage.setItem('cartSession', JSON.stringify(validCartItems));
+              try {
+                localStorage.setItem('cartSession', JSON.stringify(validCartItems));
+              } catch (e) {}
               toast.warning(
                 'Cart Items Updated',
                 `${removedCount} item(s) in your cart were automatically removed because they were deleted or sold by store admin.`
@@ -87,9 +97,27 @@ export const HomePage: React.FC = () => {
       });
   }, []);
 
+  // Sync /p/:id product permalink URL param with listings array
+  useEffect(() => {
+    if (productIdParam && listings.length > 0) {
+      const matched = listings.find(
+        (item) => item._id === productIdParam || item._id.endsWith(productIdParam)
+      );
+      if (matched) {
+        setSharedListing(matched);
+      }
+    } else {
+      setSharedListing(null);
+    }
+  }, [productIdParam, listings]);
+
   const saveCartToStorage = (items: CartItem[]) => {
     setCartItems(items);
-    localStorage.setItem('cartSession', JSON.stringify(items));
+    try {
+      localStorage.setItem('cartSession', JSON.stringify(items));
+    } catch (e) {
+      console.warn('LocalStorage quota exceeded for cart items:', e);
+    }
   };
 
   const handleAddToCart = (listing: Listing) => {
@@ -126,7 +154,9 @@ export const HomePage: React.FC = () => {
   };
 
   const handleBuyerLogout = () => {
-    localStorage.removeItem('buyerSession');
+    try {
+      localStorage.removeItem('buyerSession');
+    } catch (e) {}
     setBuyerUser(null);
     toast.info('Buyer Signed Out', 'You have been logged out of your buyer session.');
   };
@@ -163,7 +193,19 @@ export const HomePage: React.FC = () => {
         />
       </main>
 
-      {/* 5. Shopping Cart Drawer */}
+      {/* 5. Direct Product Permalink Modal (/p/:id) */}
+      {sharedListing && (
+        <AccountDetailModal
+          listing={sharedListing}
+          onClose={() => {
+            setSharedListing(null);
+            navigate('/');
+          }}
+          onAddToCart={handleAddToCart}
+        />
+      )}
+
+      {/* 6. Shopping Cart Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -173,7 +215,7 @@ export const HomePage: React.FC = () => {
         buyerUser={buyerUser}
       />
 
-      {/* 6. Buyer Auth Modal (Sign In / Register) */}
+      {/* 7. Buyer Auth Modal (Sign In / Register) */}
       <BuyerAuthModal
         isOpen={authModalOpen}
         onClose={() => { setAuthModalOpen(false); setPromptMessage(''); }}
@@ -184,14 +226,14 @@ export const HomePage: React.FC = () => {
         customPromptMessage={promptMessage}
       />
 
-      {/* 7. Custom Requirement Request Modal */}
+      {/* 8. Custom Requirement Request Modal */}
       <CustomRequirementModal
         isOpen={customReqModalOpen}
         onClose={() => setCustomReqModalOpen(false)}
         buyerUser={buyerUser}
       />
 
-      {/* 8. Footer with Custom Requirement link */}
+      {/* 9. Footer with Custom Requirement link */}
       <Footer onOpenCustomRequirementModal={() => setCustomReqModalOpen(true)} />
 
     </div>
