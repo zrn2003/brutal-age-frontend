@@ -27,8 +27,8 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [statusFilter, setStatusFilter] = useState<'All' | 'Available' | 'Sold'>('All');
   
-  // Price Range Filter ($200 to $25,000)
-  const [maxPrice, setMaxPrice] = useState<number>(25000);
+  // Price Range Filter ($200 to $100,000)
+  const [maxPrice, setMaxPrice] = useState<number>(100000);
   
   // Leadership Level Filter (0K to 900K Range)
   const [minLeadershipLevel, setMinLeadershipLevel] = useState<number>(0);
@@ -51,19 +51,33 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
     { label: '800K-900K', min: 800, max: 900 },
   ];
 
-  // Helper to extract numeric Leadership Level from string e.g. "Leadership LEVEL 350" -> 350
+  // Helper to extract numeric Leadership Level from string e.g. "Leadership LEVEL 350" -> 350, "503000" -> 503
   const extractLeadershipLevel = (levelStr?: string): number => {
     if (!levelStr) return 0;
-    const match = levelStr.match(/\d+/);
-    return match ? parseInt(match[0], 10) : 0;
+    const clean = levelStr.replace(/,/g, '').trim();
+    
+    // If string explicitly contains K (e.g. 503K) or M (e.g. 1M)
+    const match = clean.match(/(\d+(?:\.\d+)?)\s*([kmKM])?/i);
+    if (!match) return 0;
+
+    let num = parseFloat(match[1]);
+    const unit = (match[2] || '').toLowerCase();
+
+    if (unit === 'm') {
+      num = num * 1000; // 1M = 1000K
+    } else if (!unit && num >= 1000) {
+      num = num / 1000; // Raw number 500000 -> 500K
+    }
+
+    return num;
   };
 
   const filteredListings = useMemo(() => {
     let result = listings.filter((item) => {
       if (statusFilter !== 'All' && item.status !== statusFilter) return false;
-      if (maxPrice < 25000 && item.price > maxPrice) return false;
+      if (maxPrice < 100000 && item.price > maxPrice) return false;
 
-      // Leadership Level Filter (Min to Max Range) - Only filter if item has numeric level
+      // Leadership Level Filter (Min to Max Range) - Only filter if item has valid level
       const itemLevelNum = extractLeadershipLevel(item.level);
       if (itemLevelNum > 0 && (itemLevelNum < minLeadershipLevel || itemLevelNum > maxLeadershipLevel)) {
         return false;

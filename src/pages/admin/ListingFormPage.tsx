@@ -192,18 +192,27 @@ export const ListingFormPage: React.FC = () => {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || 'Failed to save listing to database.');
+        if (res.status === 401) {
+          throw new Error('Admin authentication expired (401). Please sign out and log in again to publish listings.');
+        }
+        throw new Error(errData.message || `Server error (${res.status})`);
       }
 
       toast.success(
         isEdit ? 'Listing Updated!' : 'Listing Published!',
-        `Account "${title}" has been saved to MongoDB Atlas database.`
+        `Account "${title}" has been saved to marketplace database.`
       );
       navigate('/admin/dashboard');
     } catch (err: any) {
-      console.warn('API connection error, saving to session cache fallback:', err.message);
+      console.warn('Backend API submit response:', err.message);
 
-      // Save to localStorage fallback cache so admin never loses created listings
+      if (err.message && err.message.includes('401')) {
+        setError(err.message);
+        toast.error('Authentication Error', err.message);
+        return;
+      }
+
+      // Save to localStorage fallback cache so admin draft is preserved when offline
       try {
         const existingLocal = JSON.parse(localStorage.getItem('customAdminListings') || '[]');
         const updatedLocal = isEdit
@@ -212,9 +221,9 @@ export const ListingFormPage: React.FC = () => {
         localStorage.setItem('customAdminListings', JSON.stringify(updatedLocal));
       } catch (cacheErr) {}
 
-      toast.success(
-        isEdit ? 'Listing Saved!' : 'Listing Published!',
-        `Account "${title}" created successfully (Saved locally).`
+      toast.warning(
+        isEdit ? 'Listing Saved (Offline)' : 'Listing Published (Offline)',
+        `Server connection issue. Saved "${title}" locally on your browser.`
       );
       navigate('/admin/dashboard');
     } finally {

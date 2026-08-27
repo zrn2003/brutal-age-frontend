@@ -20,15 +20,32 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
   const [selectedImgIndex, setSelectedImgIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [fullListing, setFullListing] = useState<Listing | null>(null);
 
   useEffect(() => {
     setSelectedImgIndex(0);
     setLightboxOpen(false);
+    if (listing) {
+      setFullListing(listing);
+      // Fetch full listing details to get complete gallery if feed images were truncated
+      const apiBase = getApiBaseUrl();
+      fetch(`${apiBase}/listings/${listing._id}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data: Listing | null) => {
+          if (data && data.images && data.images.length > 0) {
+            setFullListing(data);
+          }
+        })
+        .catch(() => {});
+    } else {
+      setFullListing(null);
+    }
   }, [listing]);
 
   if (!listing) return null;
+  const activeListing = fullListing || listing;
 
-  const rawImages = listing.images && listing.images.length > 0 ? listing.images : ['https://placehold.co/800x500/ffffff/0f172a?text=Brutal+Age'];
+  const rawImages = activeListing.images && activeListing.images.length > 0 ? activeListing.images : ['https://placehold.co/800x500/ffffff/0f172a?text=Brutal+Age'];
   const images = rawImages.map((img) => formatImageUrl(img));
 
   const formattedPrice = new Intl.NumberFormat('en-US', {
