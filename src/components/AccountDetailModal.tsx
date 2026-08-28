@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
 import { ZoomIn, ChevronLeft, ChevronRight, X, Maximize2, Share2, Check } from 'lucide-react';
 import type { Listing } from '../types';
+import { getApiBaseUrl } from '../config/api';
 import { formatImageUrl } from '../utils/imageUtils';
 import { getShortProductCode, getShortProductUrl } from '../utils/permalinkUtils';
 
