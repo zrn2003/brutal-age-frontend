@@ -99,7 +99,10 @@ export const AccountDetailModal: React.FC<AccountDetailModalProps> = ({
                 <img
                   src={images[selectedImgIndex]}
                   alt={listing.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-contain bg-slate-950 group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/0f172a/ffffff?text=Brutal+Age+Verified+Screenshot';
+                  }}
                 />
                 
                 <div className="absolute top-3 right-3 bg-slate-900/80 text-white text-[10px] font-bold px-2 py-1 flex items-center gap-1 opacity-90 group-hover:opacity-100 transition-opacity">

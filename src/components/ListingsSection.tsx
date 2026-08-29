@@ -326,7 +326,10 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
                     <img
                       src={coverImage}
                       alt={listing.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-contain bg-slate-950 group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/0f172a/ffffff?text=Brutal+Age+Screenshot';
+                      }}
                     />
                     
                     <div className="absolute top-3 left-3">
