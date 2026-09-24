@@ -1,9 +1,10 @@
 /**
  * Dynamic Production & Local API Base URL Resolver.
- * Connects frontend directly to live Render backend: https://brutal-age-backend.onrender.com/api
+ * Defaults to the live cloud Render backend: https://brutal-age-backend.onrender.com/api
+ * Can be overridden by environment variable VITE_API_BASE_URL or localStorage.
  */
 export const getApiBaseUrl = (): string => {
-  // 1. Environment variable override if provided
+  // 1. Environment variable override if provided (e.g. .env or Vite build)
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
   }
@@ -11,15 +12,11 @@ export const getApiBaseUrl = (): string => {
     return import.meta.env.VITE_API_URL;
   }
 
-  const hostname = window.location.hostname;
-
-  // 2. Localhost & local Wi-Fi development network
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://localhost:5000/api';
-  }
-  if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
-    return `http://${hostname}:5000/api`;
-  }
+  // 2. LocalStorage override (allows switching between local and live backend dynamically if needed)
+  try {
+    const override = localStorage.getItem('API_BASE_URL') || localStorage.getItem('VITE_API_BASE_URL');
+    if (override) return override;
+  } catch {}
 
   // 3. Official Live Production Render Backend API URL
   return 'https://brutal-age-backend.onrender.com/api';

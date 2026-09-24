@@ -256,9 +256,9 @@ export const ListingFormPage: React.FC = () => {
       </header>
 
       {/* Main Content Form */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 font-heading">
+      <div className="max-w-4xl mx-auto px-3 sm:px-8 py-4 sm:py-8 font-heading">
 
-        <div className="bg-white border border-slate-300 p-6 sm:p-8 shadow-xs">
+        <div className="bg-white border border-slate-300 p-4 sm:p-8 shadow-xs">
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2">
@@ -392,7 +392,7 @@ export const ListingFormPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="listing-rank" className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                  relocation tickets *
+                  Relocation Tickets *
                 </label>
                 <input
                   id="listing-rank"
@@ -407,13 +407,13 @@ export const ListingFormPage: React.FC = () => {
 
               <div>
                 <label htmlFor="listing-level" className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                  Leadership LEVEL (1 - 500) *
+                  Leadership Level *
                 </label>
                 <input
                   id="listing-level"
                   name="level"
                   type="text"
-                  placeholder="e.g. Leadership LEVEL 350"
+                  placeholder="e.g. Leadership Level 350"
                   value={level}
                   onChange={(e) => setLevel(e.target.value)}
                   className="w-full bg-slate-50 text-slate-900 text-xs sm:text-sm px-3.5 py-3 border border-slate-300 focus:outline-none focus:border-slate-900 font-medium"
@@ -486,14 +486,22 @@ export const ListingFormPage: React.FC = () => {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-indigo w-full py-4 text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs min-h-[46px]"
-            >
-              <Save className="w-4 h-4" />
-              <span>{loading ? 'Saving Listing...' : isEdit ? 'Update Brutal Age Listing' : 'Publish Brutal Age Listing'}</span>
-            </button>
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <Link
+                to="/admin/dashboard"
+                className="px-5 py-3.5 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold uppercase tracking-wider transition-colors min-h-[46px] flex items-center justify-center cursor-pointer"
+              >
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-indigo flex-1 py-3.5 text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs min-h-[46px] cursor-pointer"
+              >
+                <Save className="w-4 h-4" />
+                <span>{loading ? 'Saving Listing...' : isEdit ? 'Update Brutal Age Listing' : 'Publish Brutal Age Listing'}</span>
+              </button>
+            </div>
 
           </form>
         </div>

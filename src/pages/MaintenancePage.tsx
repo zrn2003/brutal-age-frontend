@@ -1,6 +1,5 @@
 import React from 'react';
-import { Wrench, ShieldAlert, RefreshCw, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Wrench, ShieldAlert, RefreshCw } from 'lucide-react';
 
 interface MaintenancePageProps {
   message?: string;
@@ -11,7 +10,6 @@ export const MaintenancePage: React.FC<MaintenancePageProps> = ({
   message = 'We are currently upgrading the Brutal Age Marketplace for enhanced speed, security, and high-performance server capacity.',
   onRefresh,
 }) => {
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 selection:bg-indigo-600 font-heading">
@@ -41,21 +39,13 @@ export const MaintenancePage: React.FC<MaintenancePageProps> = ({
         </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="flex items-center justify-center">
           <button
             onClick={() => (onRefresh ? onRefresh() : window.location.reload())}
-            className="w-full sm:w-auto px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
+            className="w-full sm:w-auto px-8 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Refresh Status</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/admin/login')}
-            className="w-full sm:w-auto px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-slate-700 transition-all"
-          >
-            <Lock className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Admin Portal</span>
           </button>
         </div>
 
