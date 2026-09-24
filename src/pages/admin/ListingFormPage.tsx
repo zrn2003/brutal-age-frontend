@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X, ShieldAlert, CloudUpload } from 'lucide-react';
-import { mockListings } from '../../data/mockListings';
 import { formatImageUrl } from '../../utils/imageUtils';
 import { getApiBaseUrl } from '../../config/api';
 import { useToast } from '../../context/ToastContext';
@@ -37,8 +36,6 @@ export const ListingFormPage: React.FC = () => {
       })
         .then((res) => {
           if (res.ok) return res.json();
-          const mock = mockListings.find((m) => m._id === id);
-          if (mock) return mock;
           throw new Error('Listing not found');
         })
         .then((item: Listing) => {
@@ -51,18 +48,8 @@ export const ListingFormPage: React.FC = () => {
           setStatus(item.status || 'Available');
           setContactLink(item.contact_link || 'https://wa.me/917517491313');
         })
-        .catch(() => {
-          const mock = mockListings.find((m) => m._id === id);
-          if (mock) {
-            setTitle(mock.title);
-            setImages(mock.images.map((img) => formatImageUrl(img)));
-            setRank(mock.rank);
-            setLevel(mock.level);
-            setPrice(mock.price);
-            setDescription(mock.description);
-            setStatus(mock.status);
-            setContactLink(mock.contact_link || 'https://wa.me/917517491313');
-          }
+        .catch((err) => {
+          setError(err.message || 'Error loading listing');
         });
     }
   }, [id, isEdit]);
@@ -76,6 +63,8 @@ export const ListingFormPage: React.FC = () => {
 
     try {
       const formData = new FormData();
+      if (id) formData.append('listingId', id);
+      if (title.trim()) formData.append('title', title.trim());
       for (let i = 0; i < files.length; i++) {
         formData.append('images', files[i]);
       }
@@ -98,11 +87,11 @@ export const ListingFormPage: React.FC = () => {
       if (data.imageUrls && Array.isArray(data.imageUrls)) {
         const formattedNew = data.imageUrls.map((u: string) => formatImageUrl(u));
         setImages((prev) => [...prev, ...formattedNew]);
-        toast.success('Images Uploaded', `Successfully uploaded ${data.imageUrls.length} file(s) to cloud storage.`);
+        toast.success('Images Uploaded', `Successfully uploaded ${data.imageUrls.length} file(s) to Cloudflare R2.`);
       }
     } catch (err: any) {
       console.warn('Backend file upload fallback:', err.message);
-      
+
       // Local Base64 preview fallback if backend storage pipeline unavailable
       const fileList = Array.from(files);
       const readPromises = fileList.map((file) => {
@@ -120,6 +109,16 @@ export const ListingFormPage: React.FC = () => {
       setUploadingImage(false);
       if (e.target) e.target.value = '';
     }
+  };
+
+  const handleSetCoverImage = (index: number) => {
+    if (index === 0) return;
+    setImages((prev) => {
+      const selected = prev[index];
+      const remaining = prev.filter((_, idx) => idx !== index);
+      return [selected, ...remaining];
+    });
+    toast.info('Cover Updated', 'Selected image set as primary cover photo.');
   };
 
   const handleAddImageUrl = () => {
@@ -175,10 +174,10 @@ export const ListingFormPage: React.FC = () => {
 
     try {
       const apiBase = getApiBaseUrl();
-      const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken') || 'demo_admin_jwt_token_2026';
+      const adminToken = localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`,
+        ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {}),
       };
 
       const endpoint = isEdit ? `${apiBase}/listings/${id}` : `${apiBase}/listings`;
@@ -219,7 +218,7 @@ export const ListingFormPage: React.FC = () => {
           ? existingLocal.map((item: Listing) => (item._id === id ? newListingItem : item))
           : [newListingItem, ...existingLocal];
         localStorage.setItem('customAdminListings', JSON.stringify(updatedLocal));
-      } catch (cacheErr) {}
+      } catch (cacheErr) { }
 
       toast.warning(
         isEdit ? 'Listing Saved (Offline)' : 'Listing Published (Offline)',
@@ -233,7 +232,7 @@ export const ListingFormPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-100 font-heading">
-      
+
       {/* Top Admin Header */}
       <header className="bg-slate-900 text-white border-b border-slate-800 py-4 px-4 sm:px-8">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -258,9 +257,9 @@ export const ListingFormPage: React.FC = () => {
 
       {/* Main Content Form */}
       <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 font-heading">
-        
+
         <div className="bg-white border border-slate-300 p-6 sm:p-8 shadow-xs">
-          
+
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-red-600 flex-shrink-0" />
@@ -269,7 +268,7 @@ export const ListingFormPage: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            
+
             <div>
               <label htmlFor="listing-title" className="block text-xs font-bold uppercase text-slate-600 mb-1">
                 Listing Title *
@@ -303,15 +302,15 @@ export const ListingFormPage: React.FC = () => {
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-1.5 gap-1">
                 <label htmlFor="listing-upload-files" className="block text-xs font-bold uppercase text-slate-600">
-                  Screenshots / Image Storage (Google Firebase)
+                  Screenshots / Account Proofs (Cloudflare R2 Storage)
                 </label>
                 {uploadingImage && (
                   <span className="text-[11px] text-indigo-600 font-bold animate-pulse flex items-center gap-1">
-                    <CloudUpload className="w-3.5 h-3.5" /> Uploading image to Firebase...
+                    <CloudUpload className="w-3.5 h-3.5" /> Uploading image to Cloudflare R2...
                   </span>
                 )}
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-2 mb-3">
                 <label htmlFor="listing-upload-files" className="cursor-pointer bg-slate-100 text-slate-800 border border-slate-300 px-3.5 py-3 text-xs font-bold hover:bg-slate-200 flex items-center justify-center gap-1.5 min-h-[42px]">
                   <Upload className="w-4 h-4 text-slate-600" />
@@ -332,7 +331,7 @@ export const ListingFormPage: React.FC = () => {
                     id="listing-image-url"
                     name="imageUrl"
                     type="text"
-                    placeholder="Or paste image URL (Firebase Storage)..."
+                    placeholder="Or paste direct image URL (Cloudflare R2 / WebP)..."
                     value={newImageUrl}
                     onChange={(e) => setNewImageUrl(e.target.value)}
                     className="flex-1 bg-slate-50 text-slate-900 text-xs px-3 py-2.5 border border-slate-300 focus:outline-none focus:border-slate-900 min-h-[42px] font-medium"
@@ -348,14 +347,39 @@ export const ListingFormPage: React.FC = () => {
               </div>
 
               {images.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 bg-slate-50 border border-slate-300">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-2.5 bg-slate-50 border border-slate-300">
                   {images.map((img, idx) => (
-                    <div key={idx} className="relative aspect-video bg-white border border-slate-300 overflow-hidden">
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    <div key={idx} className="relative aspect-video bg-white border border-slate-300 overflow-hidden group">
+                      <img src={img} alt={`Proof ${idx + 1}`} className="w-full h-full object-cover" />
+                      
+                      {/* Cover / Index Badge */}
+                      {idx === 0 ? (
+                        <span className="absolute top-1 left-1 bg-emerald-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5 shadow-sm tracking-wider">
+                          ★ Cover
+                        </span>
+                      ) : (
+                        <span className="absolute top-1 left-1 bg-slate-900/80 text-white text-[9px] font-bold px-1.5 py-0.5 shadow-sm">
+                          #{idx + 1}
+                        </span>
+                      )}
+
+                      {/* Set as Cover Action for Secondary Images */}
+                      {idx > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => handleSetCoverImage(idx)}
+                          className="absolute bottom-1 left-1 right-1 py-1 bg-slate-900/90 hover:bg-indigo-600 text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity text-center shadow"
+                        >
+                          Make Cover
+                        </button>
+                      )}
+
+                      {/* Remove Button */}
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(idx)}
-                        className="absolute top-0 right-0 p-1 bg-slate-900 text-white text-[10px] font-bold"
+                        className="absolute top-0 right-0 p-1 bg-slate-900 text-white text-[10px] font-bold hover:bg-red-600 transition-colors"
+                        title="Remove image"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>

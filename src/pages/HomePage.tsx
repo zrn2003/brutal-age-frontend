@@ -9,7 +9,7 @@ import { BuyerAuthModal } from '../components/BuyerAuthModal';
 import { CustomRequirementModal } from '../components/CustomRequirementModal';
 import { AccountDetailModal } from '../components/AccountDetailModal';
 import { Footer } from '../components/Footer';
-import { mockListings } from '../data/mockListings';
+import { MaintenancePage } from './MaintenancePage';
 import { useToast } from '../context/ToastContext';
 import { getApiBaseUrl } from '../config/api';
 import type { Listing, BuyerUser, CartItem } from '../types';
@@ -19,9 +19,13 @@ export const HomePage: React.FC = () => {
   const { id: productIdParam } = useParams<{ id?: string }>();
   const navigate = useNavigate();
 
-  const [listings, setListings] = useState<Listing[]>(mockListings);
+  const [listings, setListings] = useState<Listing[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   
+  // System Maintenance Mode State
+  const [isMaintenance, setIsMaintenance] = useState<boolean>(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState<string>('');
+
   // Direct Shared Permalink Modal Listing (/p/:id)
   const [sharedListing, setSharedListing] = useState<Listing | null>(null);
 
@@ -38,8 +42,19 @@ export const HomePage: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    // 1. Track website visit for analytics
+    // 0. Check system maintenance mode status
     const apiBase = getApiBaseUrl();
+    fetch(`${apiBase}/analytics/maintenance`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.maintenance) {
+          setIsMaintenance(true);
+          if (data.message) setMaintenanceMessage(data.message);
+        }
+      })
+      .catch(() => {});
+
+    // 1. Track website visit for analytics
     fetch(`${apiBase}/analytics/visit`, { method: 'POST' }).catch(() => {});
 
     // 2. Load saved buyer session
@@ -90,12 +105,11 @@ export const HomePage: React.FC = () => {
             }
           }
         } else {
-          setListings(mockListings);
+          setListings([]);
         }
       })
       .catch((err) => {
         console.log('API error fetching listings, retaining listings state:', err.message);
-        setListings(mockListings);
       });
   }, []);
 
@@ -173,6 +187,10 @@ export const HomePage: React.FC = () => {
     setBuyerUser(null);
     toast.info('Buyer Signed Out', 'You have been logged out of your buyer session.');
   };
+
+  if (isMaintenance) {
+    return <MaintenancePage message={maintenanceMessage} onRefresh={() => window.location.reload()} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-600 selection:text-white font-heading">

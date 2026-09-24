@@ -51,25 +51,13 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
     { label: '800K-900K', min: 800, max: 900 },
   ];
 
-  // Helper to extract numeric Leadership Level from string e.g. "Leadership LEVEL 350" -> 350, "503000" -> 503
+  // Helper to extract numeric Leadership Level from string e.g. "Leadership LEVEL 350" -> 350, "410M" -> 410, "503K" -> 503
   const extractLeadershipLevel = (levelStr?: string): number => {
     if (!levelStr) return 0;
     const clean = levelStr.replace(/,/g, '').trim();
-    
-    // If string explicitly contains K (e.g. 503K) or M (e.g. 1M)
-    const match = clean.match(/(\d+(?:\.\d+)?)\s*([kmKM])?/i);
+    const match = clean.match(/(\d+(?:\.\d+)?)/);
     if (!match) return 0;
-
-    let num = parseFloat(match[1]);
-    const unit = (match[2] || '').toLowerCase();
-
-    if (unit === 'm') {
-      num = num * 1000; // 1M = 1000K
-    } else if (!unit && num >= 1000) {
-      num = num / 1000; // Raw number 500000 -> 500K
-    }
-
-    return num;
+    return parseFloat(match[1]);
   };
 
   const filteredListings = useMemo(() => {
@@ -175,10 +163,10 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
           />
           <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold mt-1 mb-2">
             <span>$200</span>
-            <span>$25,000</span>
+            <span>$100,000</span>
           </div>
           <div className="flex flex-wrap gap-1">
-            {[1000, 5000, 15000, 25000].map((p) => (
+            {[1000, 5000, 10000, 100000].map((p) => (
               <button
                 key={p}
                 onClick={() => setMaxPrice(p)}
@@ -188,7 +176,7 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
                     : 'bg-slate-50 text-slate-600 border-slate-300 hover:bg-slate-100'
                 }`}
               >
-                ≤ ${p.toLocaleString()}
+                {p === 100000 ? 'All Prices' : `≤ $${p.toLocaleString()}`}
               </button>
             ))}
           </div>
@@ -288,12 +276,12 @@ export const ListingsSection: React.FC<ListingsSectionProps> = ({
         <span className="font-semibold text-slate-600">
           Showing <strong className="text-slate-900">{filteredListings.length}</strong> Brutal Age listings (Sorted by Low Price First)
         </span>
-        {(searchQuery || statusFilter !== 'All' || maxPrice < 25000 || minLeadershipLevel > 0 || maxLeadershipLevel < 900 || sortBy !== 'priceAsc') && (
+        {(searchQuery || statusFilter !== 'All' || maxPrice < 100000 || minLeadershipLevel > 0 || maxLeadershipLevel < 900 || sortBy !== 'priceAsc') && (
           <button
             onClick={() => {
               onSearchChange('');
               setStatusFilter('All');
-              setMaxPrice(25000);
+              setMaxPrice(100000);
               setMinLeadershipLevel(0);
               setMaxLeadershipLevel(900);
               setSortBy('priceAsc');

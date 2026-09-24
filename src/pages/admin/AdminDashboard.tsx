@@ -23,6 +23,7 @@ import {
   Shield,
   Layers,
   ChevronRight,
+  Wrench,
 } from 'lucide-react';
 import type { Listing } from '../../types';
 import { getApiBaseUrl } from '../../config/api';
@@ -87,6 +88,8 @@ export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('adminToken');
 
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState<boolean>(false);
+
   useEffect(() => {
     if (!token) {
       navigate('/admin/login');
@@ -101,6 +104,42 @@ export const AdminDashboard: React.FC = () => {
     fetchRequirements();
     fetchBuyers();
     fetchAnalytics();
+    fetchMaintenanceStatus();
+  };
+
+  const fetchMaintenanceStatus = () => {
+    const apiBase = getApiBaseUrl();
+    fetch(`${apiBase}/analytics/maintenance`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.maintenance !== undefined) {
+          setIsMaintenanceMode(Boolean(data.maintenance));
+        }
+      })
+      .catch(() => {});
+  };
+
+  const handleToggleMaintenance = (targetStatus: boolean) => {
+    const apiBase = getApiBaseUrl();
+    fetch(`${apiBase}/analytics/maintenance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        maintenance: targetStatus,
+        message: 'We are currently upgrading the Brutal Age Marketplace for enhanced speed, security, and high-performance server capacity.',
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setIsMaintenanceMode(Boolean(data.maintenance));
+          alert(data.maintenance ? '🛠️ MAINTENANCE MODE ENABLED! Store visitors will see the Maintenance Page.' : '✅ MAINTENANCE MODE DISABLED! Store is live for all visitors.');
+        }
+      })
+      .catch(() => alert('Failed to update maintenance mode.'));
   };
 
   const fetchListings = () => {
@@ -285,6 +324,19 @@ export const AdminDashboard: React.FC = () => {
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Public Store</span>
             </Link>
+
+            <button
+              onClick={() => handleToggleMaintenance(!isMaintenanceMode)}
+              className={`px-3 py-2 text-xs font-bold uppercase flex items-center gap-1.5 border transition-all ${
+                isMaintenanceMode
+                  ? 'bg-amber-500 text-slate-950 border-amber-600 shadow-md font-extrabold animate-pulse'
+                  : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+              }`}
+              title={isMaintenanceMode ? 'Maintenance Mode is ACTIVE (Store is hidden from visitors)' : 'Maintenance Mode is OFF (Store is live)'}
+            >
+              <Wrench className={`w-3.5 h-3.5 ${isMaintenanceMode ? 'text-slate-950' : 'text-amber-600'}`} />
+              <span>{isMaintenanceMode ? '🛠️ Maintenance: ON' : 'Maintenance: OFF'}</span>
+            </button>
 
             <button
               onClick={handleLogout}
